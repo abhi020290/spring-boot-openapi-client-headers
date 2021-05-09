@@ -1,8 +1,8 @@
 package com.springbootopenapi.springbootopenapi.resource;
 
-import com.springbootopenapi.springbootopenapi.entity.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,10 @@ public class DemoController {
             responses = {@ApiResponse(responseCode = "200", description = "Success"),
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
             tags = "getMessage",
-            summary = "Api to fetch the all the messages available"
+            summary = "Api to fetch the all the messages available",
+            security = {@SecurityRequirement(name = "X-CLIENT-ID"),
+            @SecurityRequirement(name = "X-CLIENT"),
+            @SecurityRequirement(name = "X-CLIENT-SECRET")}
     )
     ResponseEntity<List<String>> getMessage() {
         List<String> messages = new ArrayList<>();

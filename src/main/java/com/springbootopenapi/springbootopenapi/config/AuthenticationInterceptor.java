@@ -38,51 +38,58 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Value("${client.name}")
     List<String> clientNameList;
 
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("AuthenticationInterceptor Interceptor preHandle method Invoked ************");
         Enumeration<String> headerNames = request.getHeaderNames();
-        String clientName= request.getHeader("X-CLIENT");
-
+        String clientName = request.getHeader("X-CLIENT");
+        boolean isProvided = false;
         while (headerNames.hasMoreElements()) {
 
             String headerName = headerNames.nextElement();
             String headerValue = request.getHeader(headerName);
-         if(headerName.equalsIgnoreCase("X-CLIENT")
-                 || headerName.equalsIgnoreCase("X-CLIENT-ID" )
-             || headerName.equalsIgnoreCase("X-CLIENT-SECRET")) {
-             if (headerName.equalsIgnoreCase("X-CLIENT")) {
-                 if (!clientNameList.contains(headerValue)) {
-                     log.info("AuthenticationInterceptor failed X-CLIENT");
-                     return false;
-                 }
-                 log.info("AuthenticationInterceptor success for X-CLIENT");
-             } else if (headerName.equalsIgnoreCase("X-CLIENT-ID")) {
-                 if (clientName.equalsIgnoreCase("CART")) {
-                     if (!cartClientId.equals(headerValue)) {
-                         log.info("CART AuthenticationInterceptor for cart client Id");
-                         return false;
-                     }
-                 } else if (clientName.equalsIgnoreCase("CHECKOUT")) {
-                     if (!checkoutClientId.equals(headerValue)) {
-                         log.info("CHECKOUT AuthenticationInterceptor for checkoutClientId Id");
-                         return false;
-                     }
-                 }
-             } else if (headerName.equalsIgnoreCase("X-CLIENT-SECRET")) {
-                 if (clientName.equalsIgnoreCase("CART")) {
-                     if (!cartClientSecret.equals(headerValue)) {
-                         log.info("CART AuthenticationInterceptor for cart client Id");
-                         return false;
-                     }
-                 } else if (clientName.equalsIgnoreCase("CHECKOUT")) {
-                     if (!cartClientSecret.equals(headerValue)) {
-                         log.info("CHECKOUT AuthenticationInterceptor for checkoutClientId Id");
-                         return false;
-                     }
-                 }
-             }
+            boolean mandatoryHeaderPresent = headerName.equalsIgnoreCase("X-CLIENT") || headerName.equalsIgnoreCase("X-CLIENT-ID")
+                    || headerName.equalsIgnoreCase("X-CLIENT-SECRET");
+            if (!mandatoryHeaderPresent) {
+                continue;
+            } else {
+                isProvided = true;
+                if (headerName.equalsIgnoreCase("X-CLIENT")) {
+                    if (!clientNameList.contains(headerValue)) {
+                        log.info("AuthenticationInterceptor failed X-CLIENT");
+                        return false;
+                    }
+                    log.info("AuthenticationInterceptor success for X-CLIENT");
+                } else if (headerName.equalsIgnoreCase("X-CLIENT-ID")) {
+                    if (clientName.equalsIgnoreCase("CART")) {
+                        if (!cartClientId.equals(headerValue)) {
+                            log.info("CART AuthenticationInterceptor for cart client Id");
+                            return false;
+                        }
+                    } else if (clientName.equalsIgnoreCase("CHECKOUT")) {
+                        if (!checkoutClientId.equals(headerValue)) {
+                            log.info("CHECKOUT AuthenticationInterceptor for checkoutClientId Id");
+                            return false;
+                        }
+                    }
+                } else if (headerName.equalsIgnoreCase("X-CLIENT-SECRET")) {
+                    if (clientName.equalsIgnoreCase("CART")) {
+                        if (!cartClientSecret.equals(headerValue)) {
+                            log.info("CART AuthenticationInterceptor for cart client Id");
+                            return false;
+                        }
+                    } else if (clientName.equalsIgnoreCase("CHECKOUT")) {
+                        if (!cartClientSecret.equals(headerValue)) {
+                            log.info("CHECKOUT AuthenticationInterceptor for checkoutClientId Id");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            if (!isProvided) {
+                log.info("CHECKOUT AuthenticationInterceptor for checkoutClientId Id");
+                throw new ResourceAccessException("Provide Header values to authenticate");
             }
 
         }

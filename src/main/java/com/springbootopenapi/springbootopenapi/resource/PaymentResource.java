@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -33,7 +34,10 @@ public class PaymentResource {
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
             tags = "GetPaymentById",
             parameters = {@Parameter(name = "paymentId", description = "Enter the paymentId to fetch details")},
-            summary = "Api to fetch the details based on payment Id"
+            summary = "Api to fetch the details based on payment Id",
+            security = {@SecurityRequirement(name = "X-CLIENT"),
+                    @SecurityRequirement(name = "X-CLIENT-ID"),
+                    @SecurityRequirement(name = "X-CLIENT-SECRET")}
     )
     ResponseEntity<Payment> getPaymentById(@PathVariable("paymentId") String paymentId) throws Throwable {
         long parseLong = Long.parseLong(paymentId);
@@ -46,19 +50,22 @@ public class PaymentResource {
         }));
     }
 
-    @GetMapping("")
+    @GetMapping()
     @Operation(description = "Api to fetch the all the payments available",
             responses = {@ApiResponse(responseCode = "200", description = "Success"),
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
             tags = "GetAllPayments",
-            summary = "Api to fetch the all the payments available"
+            summary = "Api to fetch the all the payments available",
+            security = {@SecurityRequirement(name = "X-CLIENT"),
+                    @SecurityRequirement(name = "X-CLIENT-ID"),
+                    @SecurityRequirement(name = "X-CLIENT-SECRET")}
     )
     ResponseEntity<List<Payment>> getAllPayment() throws Throwable {
         List<Payment> payments = paymentRepository.findAll();
         return ResponseEntity.ok().body(payments);
     }
 
-    @PostMapping("")
+    @PostMapping()
     @Operation(description = "Api to create payment resource",
                responses = {@ApiResponse(responseCode = "201", description = "Payment Successfully created"),
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
@@ -72,14 +79,17 @@ public class PaymentResource {
                                     "  \"transactionId\": \"dsf\",\n" +
                                     "  \"transactionDate\": \"sdfsd\",\n" +
                                     "  \"amount\": 0\n" +
-                                    "}")))
+                                    "}"))),
+            security = {@SecurityRequirement(name = "X-CLIENT"),
+                    @SecurityRequirement(name = "X-CLIENT-ID"),
+                    @SecurityRequirement(name = "X-CLIENT-SECRET")}
     )
     ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
         Payment paymentOutput = paymentRepository.save(payment);
         return ResponseEntity.ok().body(paymentOutput);
     }
 
-    @PutMapping("")
+    @PutMapping()
     @Operation(description = "Api to update payment resource",
             responses = {@ApiResponse(responseCode = "201", description = "Payment Successfully updated"),
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
@@ -93,7 +103,11 @@ public class PaymentResource {
                                     "  \"transactionId\": \"dsf\",\n" +
                                     "  \"transactionDate\": \"sdfsd\",\n" +
                                     "  \"amount\": 0\n" +
-                                    "}")))
+                                    "}"))),
+            security = {@SecurityRequirement(name = "X-CLIENT"),
+                    @SecurityRequirement(name = "X-CLIENT-ID"),
+                    @SecurityRequirement(name = "X-CLIENT-SECRET")}
+
     )
     ResponseEntity<Payment> updatePayment(@RequestBody Payment payment) {
         Payment paymentOutput = paymentRepository.save(payment);
@@ -106,7 +120,11 @@ public class PaymentResource {
                     @ApiResponse(responseCode = "400", description = "Bad Request")},
             tags = "GetPaymentById",
             parameters = {@Parameter(name = "paymentId", description = "Enter the paymentId to fetch details")},
-            summary = "Api to fetch the details based on payment Id"
+            summary = "Api to fetch the details based on payment Id",
+            security = {@SecurityRequirement(name = "client-name"),
+                    @SecurityRequirement(name = "client-id"),
+                    @SecurityRequirement(name = "client-secret")}
+
     )
     ResponseEntity<String> updatePayment(@PathVariable("paymentId") String paymentId) {
         paymentRepository.deleteById(paymentId);
